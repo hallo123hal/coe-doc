@@ -28,6 +28,22 @@ Tóm tắt từ trang Confluence "Tech Team (TC)" (https://biplus.atlassian.net/
 | TC-04 | [TC-04-on-call-handbook.md](TC-04-on-call-handbook.md) | On-call 2 lớp & call tree, chuẩn 15'/30'/60', không remote, đánh giá qua điện thoại, thông báo RHQ (T1–T6), thay đổi khẩn bằng PC, 3 playbook P0, on-call log, bàn giao 04:00, nghỉ sau đêm trực | On-call lớp 1/2, Shift Leader Merch |
 | TC-05 | [TC-05-runbook-pc-ticket-change-rules.md](TC-05-runbook-pc-ticket-change-rules.md) | Danh mục runbook Tech & bảng quyết định PC, chuẩn runbook/script/dòng bắt buộc, PC ticket & strike, kiểm soát nội bộ 3 lớp, chuyển đổi tháng 11 & quyền production, freeze, chỉ mục Confluence | Tech L2, Tech Lead |
 
+## Merchandising Team (MR) – 7 trang con
+Tóm tắt từ trang Confluence "Merchandising Team (MR)" (https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2477263980), bản nháp v0.2 (21/10/2026), mỗi trang con = một file. Đọc cùng nhóm CM (MR chỉ chi tiết hóa phần riêng của Merchandising); MR-04 là "anh em sinh đôi" của TC-03 (workflow Shop Merchandising vs COEC).
+
+| Mã | File | Nội dung chính | Người đọc |
+|---|---|---|---|
+| MR-01 | [MR-01-merchandising-operating-manual.md](MR-01-merchandising-operating-manual.md) | Sứ mệnh, 17 nhóm việc/43 sub-task RFP, tổ chức 29 ghế, 3 ca & quân số, Market PIC/Tech counterpart 8 thị trường, một ngày từng vai trò, priority & SLA (High 4h/Medium 16h/Low 24h), phối hợp QA–Tech–BVT, KPI, leo thang, case book C01–C13 | Toàn bộ Merch |
+| MR-02 | [MR-02-shift-leader-playbook.md](MR-02-shift-leader-playbook.md) | 3 vai Shift Leader, checklist đầu ca, kiểm soát SLA 5/15/30', cảnh báo 50/70/85/95, duyệt R1/R2/R3/E4, 23:59, yêu cầu gấp, thay mặt Tech/QA ngoài giờ, IM tạm thời, đòn bẩy vắng người, bàn giao, coaching, ca đêm/cuối tuần | Shift Leader, Sub-Lead |
+| MR-03 | [MR-03-market-owner-playbook.md](MR-03-market-owner-playbook.md) | Market PIC sở hữu queue, sắp xếp queue theo SLA & go-live, weekly sync/CSAT/khiếu nại, market rules page (17 mục), lịch thị trường & lễ 2027, giao tiếp & 9 mẫu tiếng Anh, morning pickup/bàn giao, vắng mặt, introduction call | Market Owner |
+| MR-04 | [MR-04-quy-trinh-merchandising-chi-tiet.md](MR-04-quy-trinh-merchandising-chi-tiet.md) | Luồng Shop Merchandising M1–M8, 16 trạng thái Jira & đồng hồ SLA, ON HOLD SUBS/COE/RHQ, nhiều KM/thị trường & tách ticket, ngoài giờ, enhancement/BVT/Shop App, COEC liên kết, 3 ví dụ đầu cuối | Toàn bộ Merch, QA |
+| MR-05 | [MR-05-danh-muc-service-chuan-runbook.md](MR-05-danh-muc-service-chuan-runbook.md) | Catalogue 58 service Merch, chuẩn runbook 16 mục, SRL0–5 & lộ trình sprint, mẫu + runbook RB-MER-PRM-01, chỉ mục Confluence | Lead, Sub-Lead, người viết runbook |
+| MR-06 | [MR-06-kiem-soat-chat-luong-rui-ro-thiet-lap.md](MR-06-kiem-soat-chat-luong-rui-ro-thiet-lap.md) | 4 loại lỗi gây thiệt hại, 14 price sanity rules, read-back RB1/RB2, E4 & duyệt hai cấp, kiểm sau go-live 30'/monitor 2h, FPY & 16 root cause code, lỗi theo nhóm service, checklist Doer/Checker | Doer, QA, Shift Leader |
+| MR-07 | [MR-07-peak-launch-campaign-playbook.md](MR-07-peak-launch-campaign-playbook.md) | Lịch peak 11/2026–2/2027, flagship & VN Clean Room, T-14→T+1, freeze, roster tăng cường, go-live nhiều thị trường cùng tối (cut-off 17:00), QA hai lớp, Tech standby & PC, BVT, war room, post-peak review | Lead, Shift Leader, MO |
+
+## Tổng hợp câu hỏi và đáp án
+[QA-tong-hop-cau-hoi-dap-an.md](QA-tong-hop-cau-hoi-dap-an.md) gom toàn bộ câu hỏi kiểm tra, bài tập và tình huống của 24 bài (CM-01…CM-12, TC-01…TC-05, MR-01…MR-07), chia theo từng bài, mỗi câu kèm đáp án và giải thích ngắn (quét lại nguồn Confluence ngày 22/10/2026).
+
 ## Một số điểm xuyên suốt
 - **Đồng hồ SLA chỉ chạy khi ticket ở trạng thái thuộc CoE**; chuyển trạng thái (không phải comment) mới là xác nhận đã nhận.
 - **Mọi thay đổi production của Tech cần PC ticket do Oliver Leung (RHQ) duyệt**, ImpEx/Groovy phải có dòng số PC ticket + COEC gốc.
