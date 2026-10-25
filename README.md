@@ -1,6 +1,6 @@
 # Tài liệu chung CM – Ops CoE (Samsung SEAO) – bản tóm tắt
 
-Tóm tắt từ trang Confluence "Tài liệu chung (CM)" (https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2478375074) và 12 trang con. Mỗi trang con = một file. Tất cả nguồn là **bản nháp** (v0.2; CM-12 v0.1, 21/10/2026), ví dụ dùng dữ liệu giả lập. Các file tóm tắt giữ lại số liệu, quy tắc, mẫu và điểm "chờ RHQ/CEO chốt"; muốn đọc chi tiết từng câu hỏi/bài tập hãy xem trang gốc.
+Tóm tắt từ trang Confluence "Tài liệu chung (CM)" (https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2478375074) và 13 trang con. Mỗi trang con = một file. Tất cả nguồn là **bản nháp** (v0.3; TC-01…05 và CM-12 v0.2, cập nhật 22/10/2026; nguồn nay song ngữ Anh–Việt; CM-13 v1.0 là trang mới và thắng mọi tài liệu khác về quy tắc RHQ), ví dụ dùng dữ liệu giả lập. Các file tóm tắt giữ lại số liệu, quy tắc, mẫu và điểm "chờ RHQ/CEO chốt"; muốn đọc chi tiết từng câu hỏi/bài tập hãy xem trang gốc.
 
 | Mã | File | Nội dung chính | Người đọc |
 |---|---|---|---|
@@ -16,6 +16,7 @@ Tóm tắt từ trang Confluence "Tài liệu chung (CM)" (https://biplus.atlass
 | CM-10 | [CM-10-an-toan-thong-tin.md](CM-10-an-toan-thong-tin.md) | 10 quy tắc ATTT, tình huống đúng/sai, báo sự cố trong 1 giờ, bài T1 & bản cam kết | Toàn đội |
 | CM-11 | [CM-11-academy.md](CM-11-academy.md) | Academy 3 tuần, chứng nhận L0–L3, 8 bài test T1–T8, phiếu chấm, skill matrix, glossary, 6 thẻ tra cứu nhanh | Toàn đội; Lead/Sub-Lead |
 | CM-12 | [CM-12-bvt-handbook.md](CM-12-bvt-handbook.md) | BVT enhancement: quy tắc RHQ, 3 KPI, vai trò PIC, dòng thời gian, trang Confluence, case thị trường, defect/retest, năng lực, notification ngoài giờ | Merch, Tech, Lead, Shift Leader |
+| CM-13 | [CM-13-quy-tac-rhq.md](CM-13-quy-tac-rhq.md) | Quy tắc RHQ tập trung (v1.0): SLA, ticket, Merch–Tech, QA, kiểm tra nội bộ, yêu cầu gấp, PC ticket, Knox approval, quyền truy cập, dữ liệu/PII, EPP, 3PD, BVT, strike, 23 điểm chờ RHQ, 10 quy tắc | Toàn đội |
 
 ## Tech Team (TC) – 5 trang con
 Tóm tắt từ trang Confluence "Tech Team (TC)" (https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2478081979), bản nháp v0.1 (21/10/2026), mỗi trang con = một file. Đọc cùng nhóm CM (TC chỉ chi tiết hóa phần riêng của Tech).
@@ -29,7 +30,7 @@ Tóm tắt từ trang Confluence "Tech Team (TC)" (https://biplus.atlassian.net/
 | TC-05 | [TC-05-runbook-pc-ticket-change-rules.md](TC-05-runbook-pc-ticket-change-rules.md) | Danh mục runbook Tech & bảng quyết định PC, chuẩn runbook/script/dòng bắt buộc, PC ticket & strike, kiểm soát nội bộ 3 lớp, chuyển đổi tháng 11 & quyền production, freeze, chỉ mục Confluence | Tech L2, Tech Lead |
 
 ## Merchandising Team (MR) – 7 trang con
-Tóm tắt từ trang Confluence "Merchandising Team (MR)" (https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2477263980), bản nháp v0.2 (21/10/2026), mỗi trang con = một file. Đọc cùng nhóm CM (MR chỉ chi tiết hóa phần riêng của Merchandising); MR-04 là "anh em sinh đôi" của TC-03 (workflow Shop Merchandising vs COEC).
+Tóm tắt từ trang Confluence "Merchandising Team (MR)" (https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2477263980), bản nháp v0.3 (22/10/2026), mỗi trang con = một file. Đọc cùng nhóm CM (MR chỉ chi tiết hóa phần riêng của Merchandising); MR-04 là "anh em sinh đôi" của TC-03 (workflow Shop Merchandising vs COEC).
 
 | Mã | File | Nội dung chính | Người đọc |
 |---|---|---|---|
@@ -38,11 +39,14 @@ Tóm tắt từ trang Confluence "Merchandising Team (MR)" (https://biplus.atlas
 | MR-03 | [MR-03-market-owner-playbook.md](MR-03-market-owner-playbook.md) | Market PIC sở hữu queue, sắp xếp queue theo SLA & go-live, weekly sync/CSAT/khiếu nại, market rules page (17 mục), lịch thị trường & lễ 2027, giao tiếp & 9 mẫu tiếng Anh, morning pickup/bàn giao, vắng mặt, introduction call | Market Owner |
 | MR-04 | [MR-04-quy-trinh-merchandising-chi-tiet.md](MR-04-quy-trinh-merchandising-chi-tiet.md) | Luồng Shop Merchandising M1–M8, 16 trạng thái Jira & đồng hồ SLA, ON HOLD SUBS/COE/RHQ, nhiều KM/thị trường & tách ticket, ngoài giờ, enhancement/BVT/Shop App, COEC liên kết, 3 ví dụ đầu cuối | Toàn bộ Merch, QA |
 | MR-05 | [MR-05-danh-muc-service-chuan-runbook.md](MR-05-danh-muc-service-chuan-runbook.md) | Catalogue 58 service Merch, chuẩn runbook 16 mục, SRL0–5 & lộ trình sprint, mẫu + runbook RB-MER-PRM-01, chỉ mục Confluence | Lead, Sub-Lead, người viết runbook |
-| MR-06 | [MR-06-kiem-soat-chat-luong-rui-ro-thiet-lap.md](MR-06-kiem-soat-chat-luong-rui-ro-thiet-lap.md) | 4 loại lỗi gây thiệt hại, 14 price sanity rules, read-back RB1/RB2, E4 & duyệt hai cấp, kiểm sau go-live 30'/monitor 2h, FPY & 16 root cause code, lỗi theo nhóm service, checklist Doer/Checker | Doer, QA, Shift Leader |
+| MR-06 | [MR-06-kiem-soat-chat-luong-rui-ro-thiet-lap.md](MR-06-kiem-soat-chat-luong-rui-ro-thiet-lap.md) | 4 loại lỗi gây thiệt hại, 14 price sanity rules, kiểm tra nội bộ (thay read-back) + Knox approval, E4 & duyệt hai cấp, kiểm sau go-live 30'/monitor 2h, FPY & 16 root cause code, lỗi theo nhóm service, checklist Doer/Checker | Doer, QA, Shift Leader |
 | MR-07 | [MR-07-peak-launch-campaign-playbook.md](MR-07-peak-launch-campaign-playbook.md) | Lịch peak 11/2026–2/2027, flagship & VN Clean Room, T-14→T+1, freeze, roster tăng cường, go-live nhiều thị trường cùng tối (cut-off 17:00), QA hai lớp, Tech standby & PC, BVT, war room, post-peak review | Lead, Shift Leader, MO |
 
+## SAP / Hybris
+[SAP-hybris-nghiep-vu-samsung-seao.md](SAP-hybris-nghiep-vu-samsung-seao.md): giáo trình nền tảng SAP Commerce/Hybris cho Samsung SEAO (kênh, thành phần hệ thống, SKU/giá/tồn kho, promotion và coupon, đơn hàng và RDD, EPP/SMB/O2O/3PD, HAC và FlexibleSearch, đặc thù 8 nước), từ trang https://biplus.atlassian.net/wiki/spaces/SamsungCoETech/pages/2480047339.
+
 ## Tổng hợp câu hỏi và đáp án
-[QA-tong-hop-cau-hoi-dap-an.md](QA-tong-hop-cau-hoi-dap-an.md) gom toàn bộ câu hỏi kiểm tra, bài tập và tình huống của 24 bài (CM-01…CM-12, TC-01…TC-05, MR-01…MR-07), chia theo từng bài, mỗi câu kèm đáp án và giải thích ngắn (quét lại nguồn Confluence ngày 22/10/2026).
+[QA-tong-hop-cau-hoi-dap-an.md](QA-tong-hop-cau-hoi-dap-an.md) gom toàn bộ câu hỏi kiểm tra, bài tập và tình huống của 25 bài và tài liệu SAP (CM-01…CM-13, TC-01…TC-05, MR-01…MR-07, SAP), chia theo từng bài, mỗi câu kèm đáp án và giải thích ngắn (quét lại nguồn Confluence ngày 25/10/2026).
 
 ## Một số điểm xuyên suốt
 - **Đồng hồ SLA chỉ chạy khi ticket ở trạng thái thuộc CoE**; chuyển trạng thái (không phải comment) mới là xác nhận đã nhận.

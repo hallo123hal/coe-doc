@@ -1,10 +1,20 @@
 # CM-01 Welcome pack: Samsung SEAO và Ops CoE
 
-> Tóm tắt trang Confluence CM-01 (v0.2, bản nháp 21/10/2026). Chủ sở hữu/rà soát: Service Delivery Manager (SDM); ký duyệt: CEO; biên soạn: CoE Office. Người đọc: toàn đội Ops CoE. Là **tài liệu đầu tiên** người mới đọc; bức tranh chung trước khi đọc CM-02…CM-11 rồi 4–7 tài liệu của team (MR/TC/QA). Ví dụ trong tài liệu là dữ liệu giả lập.
+> Tóm tắt trang Confluence CM-01 (**v0.3, bản nháp 22/10/2026**; trang song ngữ Anh–Việt, tóm tắt dựa trên bản tiếng Việt). Chủ sở hữu/rà soát: Service Delivery Manager (SDM); ký duyệt: CEO; biên soạn: CoE Office. Người đọc: toàn đội Ops CoE. Là **tài liệu đầu tiên** người mới đọc; bức tranh chung trước khi đọc CM-13 (Quy tắc RHQ), CM-02…CM-12 rồi 4–7 tài liệu của team (MR/TC/QA). Ví dụ trong tài liệu là dữ liệu giả lập.
+
+> **Cập nhật v0.3 (22/10/2026)** — theo CM-13 Quy tắc RHQ v1.0 và quyết định CEO 22/10. **Khi mâu thuẫn, CM-13 thắng** (xem [CM-13](CM-13-quy-tac-rhq.md)). Thay đổi chính của trang này:
+> - **PIC 3PD thuộc Tech Team** (chuyên trách, 1 ghế trong 9 ghế tính phí của Tech, có backup đã chứng nhận); kênh 3PD không còn thuộc Sub-Lead 4 của Merchandising. 4 middleware (không chỉ LogicBroker); thay đổi dữ liệu 3PD trên production đi PC ticket.
+> - **Bỏ read-back, thay bằng kiểm tra nội bộ**: Doer đối chiếu cấu hình với brief đã duyệt, ghi tóm tắt kiểm tra nội bộ lên ticket trước khi build, chạy price sanity rules (giảm ngoài khoảng ngành hàng, giá cuối dưới sàn, coupon không giới hạn lượt, ngày đã qua/> 90 ngày/sai múi giờ, stack ngoài brief). Chỉ hỏi subsidiary khi brief thiếu/mâu thuẫn.
+> - **Phạm vi PC ticket** (Prod Change, project PC): mọi thay đổi **do Tech làm trên production**; **setup Merchandising không cần** (đi workflow Shop Merchandising + **Knox approval**); truy vấn chỉ đọc không cần nhưng phải có lý do; release code của đội phát triển không đi PC. **Oliver Leung là người duyệt duy nhất**, không người thay; khi Oliver vắng (23/10–9/11) vẫn chờ, chậm khoảng 3 giờ; Oliver duyệt xong tự đưa COEC gốc về IN PROGRESS. Thay đổi khẩn trong sự cố vẫn cần PC ticket.
+> - **Knox approval** cho giá và promotion (kể cả yêu cầu gấp); đổi action/condition/website/ngày của promotion đã publish → duyệt lại; trạng thái Jira khi chờ Knox chưa rõ (ghi giờ gửi + approval path trên ticket, theo dõi trong handoff note).
+> - **Strike**: RHQ quyết định; 3 strike/năm dương lịch = loại vĩnh viễn; 3 việc chắc chắn dẫn tới strike: chạy ImpEx/Groovy production thiếu dòng header (số PC + số COEC gốc), thay đổi production khi chưa có PC duyệt, làm service chưa chứng nhận rồi gây sự cố. Người nhận strike vào bậc kèm cặp L1 của people-risk ladder; lỗi do hệ thống (RCA) không tính. Vi phạm ATTT chưa tính vào strike.
+> - **Dữ liệu/PII**: không truy vấn production khi không có lý do; báo cáo, dữ liệu lịch sử, cronjob báo cáo cần **PUMI** được duyệt rồi mới PC ticket; không gửi PII qua email từ Hybris. Mọi quyền/tài khoản (kể cả middleware 3PD) qua ticket phê duyệt; email dự án dùng miền `coe.biplus.com.vn` (xem CM-10).
+> - **Ngoài khung Tech** (19:00–04:00 và CN): **Tech on-call lớp 1 quét COEC ở NEW mỗi 5 phút** và chuyển ASSIGNED; xử lý tại trung tâm.
+> - Với subsidiary, **coupon là một loại promotion** (voucher chỉ còn cho RNPL); R3 = giá, discount, promotion, **coupon**, payment, quyền.
 
 ## 1. Samsung SEAO, RHQ, 8 subsidiary
 - **SEAO** = South East Asia & Oceania. **RHQ** (Singapore) là *product owner* của CoE: quyết định ưu tiên, duyệt mốc chuyển đổi, nhận báo cáo SLA, chủ trì governance. **Subsidiary** = công ty con từng thị trường, nơi phát sinh yêu cầu; người gửi = **requester**.
-- 8 thị trường: VN, TH, ID (UTC+7 – bằng Hà Nội), MY, SG, PH (+1h), AU (Sydney +4h), NZ (Auckland +6h, tháng 10–3 do DST). Tech team: A (VN, TH, ID, NZ), B (MY, SG, PH, AU). Merchandising backup PIC: Sub-Lead 1 (VN), 2 (TH, ID), 3 (MY, SG), 4 (PH + EPP/SMB/O2O/3PD), 5 (AU, NZ).
+- 8 thị trường: VN, TH, ID (UTC+7 – bằng Hà Nội), MY, SG, PH (+1h), AU (Sydney +4h), NZ (Auckland +6h, tháng 10–3 do DST). Tech team: A (VN, TH, ID, NZ), B (MY, SG, PH, AU). Merchandising backup PIC: Sub-Lead 1 (VN), 2 (TH, ID), 3 (MY, SG), 4 (PH + EPP/SMB/O2O; 3PD do PIC 3PD của Tech Team phụ trách), 5 (AU, NZ).
 - Vì 03:00 Hà Nội = 09:00 Auckland nên Merchandising trực 24/7.
 - Các kênh bán: B2C, **EPP** (nhân viên đối tác), **SMB**, **O2O**, **3PD**, **Shop App**, **EA App**.
 
@@ -57,11 +67,11 @@ Quy tắc: **chuyển trạng thái = xác nhận nhận** (APPROVED-ES→STG SE
 - Tech: tự QA trên staging, Tech khác kiểm khi rủi ro cao, Oliver Leung duyệt PC ticket. Không có QA Team trong luồng Tech.
 - **BVT**: RHQ báo cửa sổ trước tối đa 1 tuần, ngày cố định; **100% test case pass** mới go-live (99% là không). PIC dự kickoff, test từ ngày đầu, cập nhật Confluence hằng ngày.
 - **PC ticket**: không có thì **không đổi gì trên production, kể cả việc 5 giây**. ImpEx/Groovy phải có dòng ghi số PC ticket + ticket COEC gốc, thiếu = **strike**. Chờ duyệt: COEC → ON HOLD HQ ("PC ticket pending"). P0/P1 gấp thì nhắn Oliver qua Mattermost.
-- Chưa rõ: PC viết tắt gì/ở project nào/mẫu; ai duyệt khi Oliver vắng 23/10–9/11. Vai trò BVT Coordinator (proposal gán QA Sub-Lead 1) mâu thuẫn với việc QA không tham gia BVT → tạm: Merchandising/Tech Lead chỉ định PIC; đề xuất một Tech Sub-Lead giữ lịch BVT; CEO chốt.
-- **Merchandising cần Tech** (vd 500.000 voucher cần ImpEx): không chuyển ticket; tạo ticket COEC mới, issue link, chuyển ticket gốc ON HOLD COE (đồng hồ vẫn chạy → phải đôn đốc Tech). Ticket nhầm team: *move* ticket (chờ RHQ xác nhận).
+- Đã rõ (CM-13): PC = Prod Change, project PC; khi Oliver vắng 23/10–9/11 vẫn chờ Oliver (chậm ~3 giờ). Vai trò BVT Coordinator (proposal gán QA Sub-Lead 1) mâu thuẫn với việc QA không tham gia BVT → tạm: Merchandising/Tech Lead chỉ định PIC; đề xuất một Tech Sub-Lead giữ lịch BVT; CEO chốt.
+- **Merchandising cần Tech** (vd 500.000 mã coupon cần ImpEx): không chuyển ticket; tạo ticket COEC mới, issue link, chuyển ticket gốc ON HOLD COE (đồng hồ vẫn chạy → phải đôn đốc Tech); phần ImpEx của Tech chạy production phải đi PC ticket. Ticket nhầm team (toàn bộ việc thuộc team kia): *move chính ticket* (RHQ xác nhận được, không cần admin).
 
 ## 5. Tổ chức BiPlus CoE (56 người)
-48 ghế tính phí (COE Lead 1, Merchandising 29, Tech 9, QA 9) + CSM + SDM + bench 6 (4 Merch, 1 Tech, 1 QA) + CoE Operations Office.
+48 ghế tính phí (COE Lead 1, Merchandising 29, Tech 9 — trong đó có PIC 3PD —, QA 9) + CSM + SDM + bench 6 (4 Merch, 1 Tech, 1 QA) + CoE Operations Office.
 - **COE Lead**: tại RHQ Singapore từ 1/12/2026 (SDM làm thay), đầu mối duy nhất với RHQ. **CSM** (Singapore): quan hệ RHQ/subsidiary, CSAT. **SDM** (Hà Nội, hotline 24/7): Transition Manager, Scrum Master 4 sprint.
 - Merchandising: Lead (Hybris, duyệt E4, on-call ngoài 08–17), 5 Sub-Lead = Shift Leader (1 là Deputy Lead), 8 Market Owner, 15 Team Member (1 Thái, 1 Bahasa). Tech: Lead (nhận COEC, phân priority, rà thay đổi rủi ro cao, chỉ định PIC BVT), 2 Sub-Lead (Team A/B, L2, on-call 1/3 tuần), 6 Team Member. QA: Lead (có quyền trả ticket, đặt OLA), Sub-Lead 1 (Deputy, ca chiều), Sub-Lead 2 (dispatcher, sampling, test library, ca sớm), 6 Team Member. Bench: dự phòng đã đào tạo.
 - **Operations Office**: Executive Sponsor David Bui (CEO), Workforce Lead Thảo (COO), SDM Quốc (CDO); CEO kiêm Process & Knowledge Lead/Atlassian Platform Eng/DevSecOps; Project Assistant, English Coach (2h/tuần, bài T2), HR.
@@ -87,14 +97,14 @@ Nhịp sprint: thứ Hai steering RHQ, stand-up đầu ca, scoreboard gửi RHQ 
 - **Initial response**: 2h mọi priority (≥ 97%).
 - **Composite SLA** = Resolution 75% + Response 15% + BVT pass 6% + Report completion 3% + User acceptance 1%; trung bình quý, 8 thị trường; < 97% bị khấu trừ 1–5% phí.
 - **Mục tiêu nội bộ**: phản hồi 78 phút (P0/High 15', P1 30'); đạt 98,5%; ticket vào Jira trong 5 phút; lọc ticket không owner mỗi 30'; cảnh báo 50/70/85/95% thời gian SLA (assignee → Shift Leader/Sub-Lead → Lead → COE Lead báo RHQ).
-- **Chất lượng**: R1 (text, banner, CMS), R2 (product setup, delivery, stock), R3 (giá, discount, promotion, voucher, payment, quyền); **E4** khi ≥ 10.000 USD, > 5 thị trường hoặc file giá ≥ 500 SKU.
+- **Chất lượng**: R1 (text, banner, CMS), R2 (product setup, delivery, stock), R3 (giá, discount, promotion, coupon, payment, quyền); **E4** khi ≥ 10.000 USD, > 5 thị trường hoặc file giá ≥ 500 SKU.
 - **An ninh**: dữ liệu chỉ trên hệ thống Samsung, bằng chứng QA tạo trên máy trạm → đính Jira, AI theo RFP 3.12, audit báo trước 3 ngày làm việc (xem CM-10).
 - **Ngôn ngữ**: tiếng Anh; 4 tuần đầu mọi tin gửi subsidiary/RHQ được duyệt đến khi đạt 4 tuần + 50 tin đạt (T8).
 - **Nhân sự**: báo vị trí trống trong 48h làm việc; thay trong 60 ngày (Lead/Sub-Lead) hoặc 45 ngày; không kiêm nhiệm; nghỉ > 3 ngày làm việc phải có backup.
 
 ## 8. Một ngày ở CoE
 - **Merchandising 24/7, 3 ca** (giờ ICT): Đêm 00–08, Ngày 08–16, Tối 16–24; bàn giao 00:00/08:00/16:00, chồng ca 15', **handoff note viết**. Quân số T2–T6: Đêm SL+1, Ngày SL+14 (8 Market Owner + 6 TM), Tối SL+4; T7: SL+1 / +5 / +2; CN & lễ: SL+1 mỗi ca.
-- **Tech L1**: ca sớm 04–12 và chiều 11–19 (T2–T7), mỗi ca 2 người (1 Team A + 1 Team B); **L2** 08–18 (5 người ngày thường, 2 người T7); on-call 19:00–04:00 và CN.
+- **Tech L1**: ca sớm 04–12 và chiều 11–19 (T2–T7), mỗi ca 2 người (1 Team A + 1 Team B); **L2** 08–18 (5 người ngày thường, 2 người T7); on-call 19:00–04:00 và CN (on-call lớp 1 quét COEC ở NEW mỗi 5 phút ngoài khung Tech).
 - **QA** (chỉ việc Merchandising): ca sớm + ca chiều T2–T6; CN chỉ on-call. Giờ QA tạm theo deck v08Oct/dashboard v1.4 (proposal v9.4 ghi khác); ngưỡng 17:00 cho yêu cầu gấp, hạn gửi promotion (2 hay 3 ngày), người kiểm queue CN 09:00/17:00 – **chờ RHQ/CEO chốt**.
 - **On-call**: trả lời trong **15 phút**, có mặt tại trung tâm Hà Nội trong **60 phút**, không xử lý từ nhà.
 - Mẫu ngày Team Member Merchandising: 07:45 có mặt + đọc handoff → 08:00 stand-up → nhận ticket (APPROVED-ES→STG SETUP), làm theo runbook, ghi evidence → 15:30 cập nhật mọi ticket + handoff → 16:00 chồng ca.
