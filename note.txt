@@ -2,3 +2,6 @@ claude --resume 82f79b6a-341a-43d6-8b80-dca013de6c1c
 
 SDSAP
 claude --resume ed80947a-a31d-45dd-8920-f0951d8eedd1
+
+KB
+claude --resume e70f8b8e-4f41-491e-8acd-7a8dcaea8c47
