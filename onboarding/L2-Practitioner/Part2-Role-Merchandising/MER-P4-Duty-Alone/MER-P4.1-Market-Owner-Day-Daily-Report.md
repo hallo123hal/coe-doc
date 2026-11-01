@@ -1,0 +1,58 @@
+# MER-P4.1 Market Owner / Team Member day and daily report
+
+> Nguồn: page 2484011250 · 60 phút (Study 15' · Demo 10' · Quiz 5' · Practice 30') · Facilitator: Shift Leader/Sub-Lead · Capability C3 · Cần xong MER-1.1, MER-1.2 (L1) và GP6.1. Staging el3-s2, Jira SCOE, Confluence; Merch không có HAC. Mang checklist hằng ngày MR-03 (Appendix B), mẫu handoff note của market (MR-03 §7.4) và runbook sửa đổi MER-PRD-01, MER-STK-01, MER-PRF-04 (free gift TRN-022; lab catalogue vẫn ghi MER-PRM-03) cộng pack MER-TXT-03. Không có access: bản giấy với bốn text ticket và bảng queue in sẵn.
+
+## Mục tiêu
+Nhận queue market lúc 08:00 sao cho mọi ticket có owner và next action trước 08:30; sắp queue bốn ticket theo chín rule và biện minh mỗi ticket một câu; hỏi subsidiary một lần, chọn status đúng và theo reply tới khi xong; đưa mọi thay đổi R2 và R3 qua Checker và Shift Leader, không bao giờ tự duyệt việc của mình; viết phần market của handoff note lúc 15:30–16:00 không ticket nào thiếu owner.
+
+## Thuật ngữ
+**Market PIC** (Market Owner sở hữu queue của một subsidiary ca ngày; VN: backup PIC là Sub-Lead 1, đối tác Tech là Tech Team A); **Morning pickup** (08:00 nhận mọi ticket mở của market, mình là owner có tên và next action trước 08:30); **Internal due date** (sớm hơn của SLA deadline và (go-live − thời gian kiểm); ghi lên ticket khi nhận và tính lại sau mỗi lần chờ); **Queue-ordering rules** (chín rule MR-03: incident và High trước, ticket đã được trả lời, rồi ticket gần 70%, rồi câu hỏi cần gửi, rồi go-live hôm nay); **Follower** (người CoE theo dõi ticket ON HOLD SUBS khi Assignee là subsidiary; nêu tên trong comment và handoff note); **Market part of the handoff note** (báo cáo cuối ngày: ticket mở kèm priority, risk, SLA %, status, go-live, owner, các chờ, lời hứa với requester); **QA cut-off** (17:00 ICT: setup go-live cùng tối phải ở QA REVIEW trước ngưỡng nội bộ này).
+
+## Nội dung
+### 1. Market Owner sở hữu gì, không sở hữu gì
+Market Owner là Market PIC của một subsidiary, ca ngày Thứ Hai–Sáu, ~90% hands-on. Sở hữu: queue market ca ngày; ticket chờ subsidiary (ON HOLD SUBS, REVIEW SETUP); ticket tồn lúc 08:00; sync tuần 15'; CSAT market; trang market rules; lịch market; dòng của mình trên trang CoE. Không làm: duyệt thay đổi (Shift Leader duyệt mọi change; Merch Lead duyệt thêm E4); chọn đường Knox (theo cột của brief); đổi priority đã phân loại (nhờ Shift Leader và ghi lý do); làm đầu mối ngoài giờ làm việc của subsidiary; trả lời khiếu nại chính thức (COE Lead); hứa vượt SLA và process; nhận yêu cầu qua kênh cá nhân.
+**TRN-001 (SCOE-7):** ticket SAVINA-MX đến là Medium. Theo RFP 3.3 việc product và stock là Low. Bạn không tự đổi: báo Shift Leader, người sửa và ghi lý do lên ticket.
+
+### 2. Morning pickup
+Từ 07:45 đọc handoff note đêm của market: incident, ticket >70%, go-live đêm, lời hứa với requester, ticket ON HOLD COE. Rồi: (1) so filter queue market với danh sách trong note; ticket có ở Jira không có ở note thì hỏi Shift Leader; ticket còn ở APPROVED-ES thì chuyển STG SETUP ngay; (2) mỗi ticket đọc comment cuối, SLA %, internal due date, bước đang làm; (3) nhận Assignee với ticket ở status CoE và comment "Picked up by [VN Market Owner] at 08:10 ICT. Next action: [...] by [time]."; ON HOLD SUBS thì Assignee vẫn là subsidiary, bạn ghi mình là follower; (4) ON HOLD SUBS có reply qua đêm hoặc đã giao lại cho người CoE: chuyển STG SETUP ngay; (5) >50%: nêu ở stand-up (08:00–08:15); >70%: báo Shift Leader ngay; (6) go-live đêm có lỗi: xem ngay và báo Shift Leader; (7) ON HOLD SUBS chưa reply: nhắc bằng comment trong giờ làm việc đầu của requester. Đầu ra: mọi ticket có owner và pickup comment trước 08:30; không ticket ON HOLD SUBS nào sai Assignee.
+Đầu ca ngày cũng mở **báo cáo inactive promotion hằng ngày** của market: promotion rule có thể tự deactivate. Mỗi cái xử lý trên ticket liên kết dưới MER-INC-01: republish, submit Knox lại, nhờ QA live re-check (KE-MER-INC-01-13; trang SDSAP Daily Inactive Promotion Report Monitoring; Handover P1 56:55–58:15).
+
+### 3. Sắp queue VN
+Mỗi ticket có hai mốc: SLA deadline (High 4, Medium 16, Low 24 giờ ở status CoE) và giờ go-live (không bao giờ dừng). Internal due date = sớm hơn của SLA deadline và go-live − thời gian kiểm (QA dispatch 15', QA check 2 giờ làm việc cho 1–2 item ở Medium/Low, Shift Leader duyệt 30'). Chín rule: (1) incident và High; (2) ticket ON HOLD SUBS đã được trả lời, về STG SETUP; (3) ticket ở hoặc gần 70%; (4) câu hỏi cho subsidiary, gửi đầu ca; (5) go-live hôm nay cần QA, sớm nhất trước, tất cả ở QA REVIEW trước cut-off; (6) còn lại theo internal due date; (7) cùng due date: R3 trước R2 trước R1; (8) việc R1 ngắn xen vào; (9) báo Shift Leader trước 50% nếu không kịp.
+| Ticket | Là gì | Priority, risk | Thứ tự và lý do |
+|---|---|---|---|
+| SCOE-42 TRN-036 | File merch text: dòng 3 là 242 ký tự nhưng 315 byte (giới hạn 300); dòng 4 dùng `text-align` EPP không hỗ trợ; dòng 6 có `fpt` ở cả excludedSites và includedSites | Low, R1 | 1 (rule 4): gửi một câu hỏi gộp dòng 3, 4, 6; làm dòng 1, 2, 5 |
+| SCOE-7 TRN-001 | Hide/unhide SKU trên D2C và EPP; "block stock" mơ hồ | Medium như raise (Low theo RFP) | 2 (rule 4): xem trang market rules VN; im lặng thì hỏi (a) chỉ chặn import hay (b) chặn và đặt 0; bắt đầu item 1, 2, 4 |
+| SCOE-28 TRN-022 | Kết thúc rule FOC tháng trước `TRAINING_<NAME>_TRN022_PR00` lúc D0 23:59:59, setup FOC mới cho `vn` và `test1` (loại SMB), live D+1 00:00 | Medium (2 rule), R3 | 3 (rule 5): live tối nay; phải ở QA REVIEW trước 17:00 |
+| SCOE-13 TRN-007 | Hide 3 TV mọi site, unblock 2 soundbar, unhide 1 TV, `HW-S800B/XV` sang "Mua ở đâu" chỉ D2C | Low, R2 | 4 (rule 6): theo internal due date; kiểm catalog 3PD và dependency trước khi hide |
+
+### 4. Giao tiếp với subsidiary
+Chỉ hỏi khi brief thiếu hoặc mâu thuẫn, hoặc price sanity rule cảnh báo. Vòng lặp: một câu hỏi gộp trong comment (A.2), mention requester; ON HOLD SUBS; Assignee = requester; giờ nhắc kế trong next action; watch ticket. Có reply (comment hoặc ticket giao lại): chuyển STG SETUP ngay, giao lại cho mình, xác nhận nhận, tính lại due date. Chưa reply sau 2 giờ làm việc của requester: nhắc bằng comment. Chưa reply sau 3 ngày làm việc: báo Sub-Lead để COE Lead liên hệ subsidiary.
+**TRN-022:** requester viết "You can skip the QA step, we will check directly on the website." Yêu cầu tới trước go-live 00:00 một buổi sáng nên không phải last-minute. Trả lời một comment: "Hi [name], noted the FOC Nov scheme. We will end last month's setup at D0 23:59:59 (GMT+7) and launch the new FOC at D+1 00:00:00 for B2C and EPP (SMB excluded). As this request reached us well before go-live, our standard QA check still applies; you will receive QA evidence in REVIEW SETUP before 23:59 today." Subsidiary chưa duyệt ở REVIEW SETUP tới 23:59 thì CoE vẫn publish đúng giờ với comment A.4; nêu người ca tối publish trong handoff note.
+> MR-03 rule 4: gửi câu hỏi, rồi chuyển ON HOLD SUBS và giao subsidiary. Ticket luyện tập TRN-001 và TRN-036 bổ sung: không dùng ON HOLD SUBS khi còn việc làm được (item 1, 2, 4; dòng 1, 2, 5); đăng câu hỏi và làm tiếp. Cả hai theo CM-13: ON HOLD SUBS chỉ khi ticket thật sự chờ subsidiary, không bao giờ chỉ để dừng clock. Xác nhận với Shift Leader.
+
+### 5. Peer check: Doer, Checker, Approver
+Mọi ticket cấu hình có ba người khác nhau. Bạn là Doer: với R3 viết internal check line trước build và chạy price sanity; setup theo runbook; self-QA; đính evidence. Checker là QA Team cho R3 và R2 có QA gate; ở ticket luyện tập TRN-007 (R2) operator thứ hai kiểm và QA Team lấy mẫu. Approver là Shift Leader cho mọi thay đổi (thêm Merch Lead ở E4), đối chiếu brief, internal check, evidence, kết quả QA, và với giá/promotion là Knox đã submit. Không bao giờ tự duyệt việc của mình.
+**TRN-022:** "Internal check: SKU SM-S928BLBQXXV, SM-S928BLBWXXV; free gift EP-T1510NBEGWW 1 per main product; D+1 00:00:00 to D+14 23:59:59 GMT+7; sites vn (B2C) and test1 (EPP), vnsme excluded; stackable Y; PR00 ends D0 23:59:59. Matches approved brief v1." B2C và EPP khác promotion group nên là 2 rule.
+
+### 6. Bàn giao cuối ngày: báo cáo ngày của market
+15:30–16:00: cập nhật mọi ticket mở (status, next action, SLA %, internal due date); ticket đến hạn qua đêm hoặc go-live tối nay giao người ca tối có tên và đổi Assignee; ticket QA REVIEW ghi giờ gửi QA, go-live và ai kiểm (ICT); REVIEW SETUP go-live ngày mai ghi ai publish lúc 23:59 giờ local; ON HOLD SUBS ghi câu hỏi, lần nhắc kế và follower; ON HOLD COE ghi key COEC và ai chase Tech. Rời đi khi Shift Leader xác nhận nhận.
+```
+Market: VN | From: VN Market Owner | 15:45 ICT
+Received by: [evening Team Member]
+Open tickets: 4 (none above 70%)
+- SCOE-28 | Medium R3 | QA REVIEW since [time] | go-live 00:00 ICT
+    no approval by 23:59: publish as agreed (evening shift) | owner: [evening TM]
+- SCOE-42 | Low R1 | rows 1, 2, 5 done | rows 3, 4, 6 waiting for requester
+    next chase [time] local | follower: VN Market Owner
+- ...
+ON HOLD SUBS with CoE assignee: 0
+Promises to requester: [ticket, what, by when]
+```
+> Nguồn không có template "Market Owner daily report" riêng. Phần market của handoff note (MR-03 §7.4) là bản ghi hằng ngày; số liệu tuần (urgent request, CSAT) gửi Merch Lead (MR-03 Appendix B). Lead muốn báo cáo ngày riêng thì format chưa đặt.
+
+## Quiz (đáp án)
+1 08:05 thấy ticket VN ở ON HOLD SUBS, subsidiary comment trả lời 07:50 và giao lại cho người CoE → **B: chuyển STG SETUP ngay, giao cho mình, xác nhận nhận, tính lại due date**. 2 Làm trước ticket nào: TRN-022 (Medium R3, live 00:00 tối nay, cần QA) hay TRN-007 (Low R2, không go-live hôm nay, due ngày mai 10:30) → **B: TRN-022: go-live hôm nay cần QA phải ở QA REVIEW trước 17:00**. 3 SAVINA raise TRN-001 Medium; theo RFP 3.3 product/stock là Low; Market Owner → **C: nhờ Shift Leader sửa và ghi lý do lên ticket**. 4 TRN-036 dòng 3, 4, 6 cần subsidiary, dòng 1, 2, 5 làm được → **B: một câu hỏi gộp dòng 3, 4, 6 và làm tiếp 1, 2, 5**. 5 Requester TRN-022 nói "skip QA, we check on the website"; ticket 09:00 cho 00:00 ngày mai → **B: giữ QA, giải thích lịch sự, gửi QA REVIEW trước 17:00**. 6 Bạn dựng rule FOC TRN-022; ai kiểm, ai duyệt → **C: QA kiểm (R3 gate), Shift Leader duyệt sau QA PASS; không bao giờ tự duyệt**. 7 15:45 ticket REVIEW SETUP go-live 00:00 mai, subsidiary chưa duyệt; ghi gì vào handoff → **C: tên người ca tối publish đúng giờ lúc 23:59 nếu vẫn chưa duyệt, kèm comment A.4**.
+
+## Practice
+**PR-MER-P4.1-1. Một ngày market: queue VN** (40'; Jira SCOE + staging el3-s2; bạn là VN Market Owner; facilitator thả SCOE-7 (TRN-001), SCOE-13 (TRN-007), SCOE-28 (TRN-022), SCOE-42 (TRN-036) ở APPROVED-ES và đóng requester và Shift Leader; ngày mô phỏng 08:00–16:00 nén vào 40'). Nhận bốn ticket, sắp thứ tự, hỏi subsidiary khi cần, làm các setup facilitator cho phép trên staging (ghi before trước), chuyển Checker và Shift Leader, viết phần market của handoff note lúc "15:30". **Pass:** cả bốn ticket từ APPROVED-ES sang STG SETUP trong target nội bộ; thứ tự có lý do (kỳ vọng: câu hỏi TRN-036 và TRN-001 trước, TRN-022 vào QA REVIEW trước "17:00", TRN-007 theo internal due date); câu hỏi priority TRN-001 nêu với Shift Leader, bạn không đổi; TRN-001 chỉ hỏi "block stock" nếu trang market rules không trả lời; TRN-036 có một câu hỏi gộp dòng 3, 4, 6 (315 byte, `text-align`, `fpt` ở cả hai danh sách site); TRN-022 giữ QA, có internal check line, kết thúc PR00 lúc D0 23:59:59, dùng 2 rule (`vn`, `test1`); không ON HOLD SUBS khi còn item làm được; handoff note đủ, mọi ticket có owner và người publish 23:59 cho TRN-022 được nêu tên; thay đổi staging đã rollback. Không có access: bản giấy: viết thứ tự, comment, đổi status và handoff note; facilitator chấm theo cùng tiêu chí.

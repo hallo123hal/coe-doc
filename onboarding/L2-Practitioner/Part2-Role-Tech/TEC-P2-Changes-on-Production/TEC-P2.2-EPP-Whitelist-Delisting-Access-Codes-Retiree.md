@@ -1,0 +1,80 @@
+# TEC-P2.2 EPP whitelist, delisting, access codes, retiree list
+
+> Nguồn: page 2483978737 · 90' (Study 20' · Demo 15' · Quiz 10' · Practice 45') · Facilitator: Shift Leader/Sub-Lead · Capabilities C2, C4 · Cần xong MER-2.4 (Multistore EPP/SMB/O2O) và G4.2 (kênh bán). Mang TRN-012 (SCOE-18), TRN-013 (SCOE-19) kèm Excel; tham khảo TRN-015 (SCOE-21), TRN-016 (SCOE-22). Access: staging Backoffice + HAC el3-s2, Jira SCOE; chỉ mở Excel trên workstation CoE. Staging dùng cho BVT: thay `zz` bằng 2 chữ cái viết tắt của bạn, chỉ đụng dữ liệu `trn012…zz`, `trn013.*`, `TRN13ZZ-` của mình. **Trên el3-s2 upload retiree thay toàn bộ list của cả 8 market: không upload trên site dùng chung, chỉ trainer upload.** Chỉ Tech chạy ImpEx. Không có access: làm giấy với trạng thái before in sẵn. (Under review: quyết định D4 của L2 gap review.)
+
+## Mục tiêu
+Chọn đúng service và object cho từng dòng yêu cầu EPP từ login type của site; thêm/xoá domain và email cá nhân để đúng người được đăng ký, không ai khác; merge retiree list trước khi upload không mất entry và đối chiếu số lượng; load, update, end-date access code và thu hồi account link của code đã consume khi requester yêu cầu; dự đoán ai đăng nhập được sau thay đổi và chứng minh bằng số lượng + test login.
+
+## Thuật ngữ
+**Login type** (SSO_DOMAIN: domain filter + retiree; SSO_ACCESSCODE: danh sách code; EMAIL_OTP; kiểm bằng Q1 trước); **Domain filter (`TokoDomainFilter`)** (1 domain trên 1 site, kèm partner và cờ regex; **không có ngày bắt đầu/kết thúc**, nên xoá = delete row); **Retiree (`TokoRetiree`)** (1 email cá nhân trên list của site, startDate/endDate tuỳ chọn; dùng cho staff, agent, VIP, retiree); **Retiree swap flag** (`toko.retiree.upload.new.data.swipe.old.data.<cc>`; TRUE trên el3-s2 cho au, id, my, nz, ph, sg, th, vn: upload thay cả list); **Access code (`MultiStoreEmployeeAccessCode`)** (code dùng một lần, có accessFrom, accessTo, consumed, partner; không có cờ active nên deactivate = đặt accessTo bằng giờ hiệu lực); **Account link (`UserToMultiStoreLink`)** (link tạo khi khách verify trên site; còn sống sau khi xoá domain/code đến khi đặt expirationDate); **Template 20** (comment chuyển ticket Shop Merch 100% Tech sang COEC: chuyển chính ticket, không clone); **Deletion line** (comment ghi tên file, số dòng, ngày khi xoá bản làm việc của list email/code trong cùng ngày).
+
+## Nội dung
+### 1. Runbook: đọc login type trước
+EPP access là việc Tech (COEC). Phần lớn ticket vẫn đến dưới dạng Shop Merchandising trong project market (95% ticket TEC-EPP-01 và toàn bộ TEC-EPP-03 năm 2026). Ticket hoàn toàn Tech thì **chuyển** sang COEC bằng Template 20, không clone hay tạo lại.
+| Service | Phạm vi | Khối lượng 2026 | Doer, Checker |
+|---|---|---|---|
+| TEC-EPP-01 | Domain và email cá nhân (retiree): add, remove, validity, "not eligible" | 387 ticket, ~41/tháng, 8 market | EPP Access desk (Level 1), operator certified thứ hai |
+| TEC-EPP-03 | Access code: load, add/remove hằng tháng, generate, reset, validity, deactivate | 191 ticket, ~21/tháng (MY 83, PH 76) | Desk operator; Level 2 cho ImpEx; operator certified thứ hai |
+Route theo login type:
+| Dòng yêu cầu | Đi đâu |
+|---|---|
+| Domain hoặc email cá nhân trên site SSO_DOMAIN | TEC-EPP-01 |
+| Code thường trên SSO_ACCESSCODE / SSO_ACCESSCODE_OTP | TEC-EPP-03 |
+| Verification code, giao OTP, hạn OTP link (Retirees và Domain Info của site EMAIL_OTP vẫn ở TEC-EPP-01) | TEC-EPP-02 |
+| Gateway login SSO_HASHACCESSCODE (không có list code) | TEC-EPP-06 |
+| List Employee ID / Gen ID | TEC-EPP-04 |
+| Đổi login type, mở/đóng site | TEC-CFG-05 |
+| Tạo/kích hoạt lại site EPP | TEC-EPP-00, sau khi RHQ duyệt qua email |
+Mọi thay đổi là production change có PC ticket, kể cả "thêm một domain". Kiểm soát BiPlus thêm: chủ chương trình EPP của subsidiary duyệt công ty mới, gỡ công ty, >200 entry (EPP-01), hoặc prefix mới, batch sinh mới, deactivate hàng loạt (EPP-03); ngưỡng cần xác nhận ở KT. Hard freeze vẫn cho phép đổi domain filter, retiree, access code.
+> Priority khác nhau theo project: Shop Merch = Medium (16h), sau khi chuyển COEC = P3 (40h). Gói tài liệu ghi là xung đột cần xác nhận ở KT. Tới khi RHQ trả lời, lên kế hoạch nội bộ 16h từ lúc ticket vào queue CoE.
+> Ticket thực hành mô phỏng Shop Merch ở APPROVED-ES, dùng STG SETUP và QA REVIEW như market đang làm. Trên production theo pack: chuyển ticket 100% Tech sang COEC và dùng status COEC (QA REVIEW, WAITING QA, ON HOLD HQ cho PC).
+
+### 2. Whitelist và delist domain
+**Validate domain trước khi chạm site:** chữ thường; không `@`, `www`, khoảng trắng, dấu chấm cuối; domain doanh nghiệp; không phải webmail miễn phí, ISP, hoặc domain công ty Samsung trên site partner (kiểm soát BiPlus). Sub-domain cần entry riêng hoặc entry regex; cờ regex của site chỉ TRUE nếu mọi domain của site là regex.
+**Kiểm trùng** trên các site của market bằng Q4 trước khi add. Domain đã có ở site khác thì dừng và hỏi: chuyển (V4) hay giữ cả hai. Cùng domain trên hai site có thể hiện sai store/giá (KE-TEC-EPP-01-09).
+**Delisting.** Domain filter không có ngày nên bạn xoá row tại thời điểm hiệu lực. Xoá **không** thu hồi account đã verify: nếu requester muốn thu hồi ngay, Level 2 đặt link hết hạn ở User › Customers › (customer) › Administration › `customer.multistorelinks` (`expirationDate`), là một bước PC riêng.
+**TRN-012 (SG).** SESP xin whitelist 2 domain đối tác, 4 email nhân viên mới, delist 3 người nghỉ trên `sg_test1` (SSO_DOMAIN, catalog `sgEppProductCatalog`). Request viết domain có `@` đầu: bạn lưu `trn012zz-partner.example-corp.test` và `trn012zz-vendor.example-corp.test` không `@`, cùng format với entry sẵn có, partner = tên công ty, cờ regex giữ nguyên. Dòng 7 tab Whitelist trùng dòng 2: add một lần và ghi chú. Hỏi 3 người nghỉ có cần mất truy cập ngay nếu đang đăng nhập không.
+> Luật "không webmail/domain Samsung" là kiểm soát của BiPlus, không phải RHQ. Staging có `gmail.com` và `samsung.com` làm domain entry ở nhiều site (Q4): hỏi RHQ trước khi coi là policy. Địa chỉ cá nhân public domain được phép làm retiree entry.
+
+### 3. Email cá nhân: retiree list tự thay thế
+Lỗi đắt nhất của EPP: upload retiree xoá list cũ. Với swap flag TRUE (cả 8 market trên el3-s2), **file upload trở thành toàn bộ list**.
+| Bước | Doer | Checker |
+|---|---|---|
+| 1-2 | Nhận list qua kênh được duyệt; dedupe, kiểm format, đối chiếu số dòng; text ticket chỉ chứa số lượng và site | Số khớp; không có địa chỉ trong comment |
+| 3 | Chạy query swap-flag (Q5); tải list retiree hiện tại (3 cột: Multistore, External ID, E-mail; giới hạn mass download 5,000, AU 2,500) | Đã lưu list cũ; ghi số trước |
+| 4 | Merge cũ + mới, bỏ các removal; `retireeName` = `retireeEmail`; ngày theo giờ market | Trước + thêm − bỏ = tổng |
+| P1-P2 | Tập trên site staging test; self-QA rồi second eyes | Trả lời 5 câu self-QA |
+| P3 | PC `[PC] [Market] [Short change] (COEC [number])`; COEC sang ON HOLD HQ (Template 18) | Đính kết quả staging và rollback (list trước) |
+| 5 / P4 | Sau duyệt: UPLOAD RETIREE, kiểm tab RETIREES | Tổng = kỳ vọng; 5 entry mẫu đã mask có mặt |
+| 8 | Xoá bản local; viết deletion line | Deletion line trên ticket |
+Rollback: upload nhầm list đã merge sai thì upload lại list trước ngay dưới PC khẩn.
+**TRN-013 phần B (MY).** Site `my_dennis_test` có 10 retiree. List W45 có 15 dòng: 5 New, 2 Termination, 2 Conversion (email cũ thay bằng email mới ở cột I), 6 không đổi. Tải 10, bỏ 2 termination, đổi 2 email conversion, thêm 5 mới: file upload có **13** email. Ví dụ Checker trả: "retiree list has 7 entries, expected 13 – upload overwrote existing list".
+**TRN-012 phần B, C.** `sg_test1` chứa retiree của tester khác nên **không** dùng UPLOAD RETIREE: add 4 email bằng tay (hoặc nhờ Tech ImpEx), end-date/xoá 3 người nghỉ. Số sau = trước + 4 − 3.
+> Đường đi runbook: Backoffice › Multistore › chọn site › Properties (domain filters, Login Type, Domain Info), tab Retirees (UPLOAD RETIREE) và Upload access code. Action nằm trên item multistore, không phải WCMS › Website. Thiếu action thì account thiếu quyền Multistore edit (TEC-EPP-03 §2.2 bước 5). Trong lab theo đường của trainer.
+
+### 4. Access code: load, update, end-date
+Code là credential. Load sai khoá nhân viên partner ngay đợt launch; batch lộ hoặc không bao giờ kết thúc cho người không đủ điều kiện hưởng giá nhân viên.
+**Load (V1).** Validate file trên workstation CoE: số dòng = ticket, prefix khớp công ty, không trùng, có accessFrom/accessTo. Định dạng cột code là **text** để giữ số 0 đầu (KE-TEC-EPP-03-02). Kiểm login type (Q1), đếm code trước (Q2) và theo prefix (Q3, kỳ vọng 0). Upload qua Multistore › site › Upload access code với template `accessCodes.xlsx`; để trống `companyEmail`. Không cho Hybris mail code tới khi RHQ trả lời bằng văn bản có cho phép email tự động không (RFP 3.12; TEC-EPP-03 §2.1). File có cột `companyEmail` chứa dữ liệu cá nhân. Theo dõi cronjob `multiStoreEmployeeAccessCode_<epoch-ms>` ở System › Background Processes › CronJobs: FINISHED, SUCCESS. Sau = trước + số dòng, kiểm 5 mẫu mask (site, accessFrom, accessTo, consumed false, partner), test bằng code test chuẩn của site; không bao giờ consume code của partner.
+**Update hằng tháng (V2).** Tách file theo remark Add/Remove; chạy add như V1 và remove như V6 trong **cùng** ticket. Upload add không áp dụng remove (KE-TEC-EPP-03-04).
+**Deactivate (V6).** Đặt accessTo bằng giờ hiệu lực: tới 500 code trong list Backoffice, trên 500 bằng ImpEx Level 2 sau Sub-Lead review có rollback file. Code đã consume thì end-date code không kết thúc truy cập: hết hạn account link (`UserToMultiStoreLink.expirationDate`) trong cùng ticket, mỗi lần deactivate code, kiểm bằng Q6. Nhiều user: ImpEx Level 2 `REMOVE UserToMultiStoreLink` dưới PC (TEC-EPP-03 §2.3, KE-TEC-EPP-03-11).
+**TRN-013 phần A (MY).** Site `epp_housebuyer` (SSO_ACCESSCODE), prefix `TRN13ZZ-`, hiệu lực D0 tới 31/12/2026 giờ MY. Add 12 code; remove 3. `TRN13ZZ-OLD00101` và `OLD00102` chưa dùng: đặt accessTo bằng giờ hiệu lực. `OLD00103` đã consume: end-date và hết hạn account link cùng ticket. Kỳ vọng: 12 code mới tồn tại đúng ngày; `OLD00101` báo "Please enter a valid access code" trên storefront.
+**TRN-015 (PH)** là V1 đơn giản: 30 code `TRN15ZZA` và 20 code `TRN15ZZB` trên `duty_free`, hiệu lực 16/11 tới 31/12/2026 GMT+8; Q3 cho `TRN15%` phải trả 0 dòng trước upload, 30 và 20 sau.
+> Upload access code có ghi đè hay từ chối code đã tồn tại chưa xác nhận (TEC-EPP-03 V1 bước 4: hỏi ở KT). Chạy Q3 theo prefix trước mỗi lần load và kỳ vọng 0 dòng.
+
+### 5. Dự đoán ai đăng nhập được và chứng minh
+| Người | Sau khi thêm domain | Sau khi xoá domain | Sau khi end-date retiree | Sau khi end-date code |
+|---|---|---|---|---|
+| User mới trên domain/email/code đó | Đăng ký được | Bị từ chối | Bị từ chối | Bị từ chối ("Please enter a valid access code") |
+| User đã verify trước thay đổi | Đã vào | **Vẫn vào** tới khi account link hết hạn | Kiểm link | **Vẫn vào** tới khi link hết hạn; hết hạn link khi deactivate code |
+| User domain khác / code lạ | Bị từ chối | Bị từ chối | Không ảnh hưởng | Bị từ chối |
+Điều tra "not eligible" (TEC-EPP-01 V6) theo thứ tự: gõ sai, sai site, start date tương lai theo giờ market, login type loại trừ domain (KE-TEC-EPP-01-01). Một user lỗi trong khi đồng nghiệp ổn → account link hoặc giao code (Level 2). Nhiều user lỗi sau release → TEC-TSP-01.
+Bằng chứng cho Checker: export trước/sau (email dạng số lượng + mẫu mask, code mask), key PC, comment second check, test login nếu RHQ cho phép (dừng đăng ký trước khi gửi code), deletion line. Domain public hoặc sai đang live là P0 bảo mật dữ liệu: xoá ngay dưới PC khẩn và mở COE-INC-02. Code bị lộ: end-date ngay, COE-INC-02.
+**TRN-016 (VN) bẫy.** Mục III xin "add a domain" cho `truonglinhtest` dùng EMAIL_OTP. Ở site EMAIL_OTP thì Retirees list là cổng và domain trong Domain Info thường là dummy, nên thêm domain không cho ai vào (KE-TEC-EPP-01-11). Làm các mục hợp lệ trước và hỏi một lần: requester muốn thêm email đối tác vào Retirees list (TEC-EPP-01 V2) hay ý site khác?
+Handover liên quan: Day 6 EPP Structure/Login Type (30/10: vị trí site list và Login Type trong Backoffice, các giá trị Login Type, Mobile Login Type phải khớp, dummy domain cho EMAIL_OTP); Day 5 Bulk Order Site Config (29/10: tab Retirees là cổng của partner portal EMAIL_OTP); Day 4 All Scripting (script To Pull MultistoreLink details tìm user cần dừng truy cập); Day 5 Coupon Display và Usergroup (list email là dữ liệu cá nhân, không dán trong comment); Day 5 Open EPP (Open EPP không có trang login nên không cần whitelist).
+
+## Quiz (đáp án)
+1 Ticket Shop Merch chỉ xin whitelist 2 domain trên site EPP SG → **B: chuyển chính ticket sang COEC bằng Template 20** (D dành cho ticket chỉ một phần cần Tech; chưa tính điểm tới khi D4 được quyết). 2 Domain `@Partner-Corp.com.` trên site SSO_DOMAIN → **B: `partner-corp.com` chữ thường, không `@`, khoảng trắng hay dấu chấm cuối, sau khi kiểm trùng trên các site của market**. 3 Site có 10 retiree, swap flag TRUE, thêm 5, bỏ 2, convert 2 → **C: 13** (10 − 2 + 5; conversion không đổi số lượng). 4 Xoá domain filter nhưng nhân viên cũ vẫn mua giá nhân viên hôm sau → **B: account link còn; Level 2 đặt site link hết hạn (`expirationDate`) ở bước PC riêng khi được yêu cầu** (C không thể: `TokoDomainFilter` không có ngày). 5 File MY hằng tháng 12 "Add" và 3 "Remove", sau upload 3 code remove vẫn dùng được → **B: upload add bỏ qua remove; phải end-date (V6) cùng ticket**. 6 Ticket VN xin thêm domain vào site EMAIL_OTP → **C: làm mục hợp lệ rồi hỏi một lần: thêm email vào Retirees (EPP-01 V2) hay site khác?** (B đổi login type là TEC-CFG-05, ngoài phạm vi). 7 Deactivate 800 code của partner hôm nay → **B: Level 2 ImpEx đặt accessTo sau Sub-Lead review, có rollback file và PC** (code item không có cờ active; mọi production change cần PC).
+
+## Practice
+**PR-TEC-P2.2-1. Email nhân viên, domain và người nghỉ SG (TRN-012)** (20'; el3-s2, site `sg_test1` (SSO_DOMAIN; dự phòng `phtest1`); SCOE-18 và `TRN-012_SESP_Staff_Email_Changes.xlsx`). Chạy query login type và domain filter. Viết comment triage (dòng trùng, câu hỏi về thu hồi ngay cho người nghỉ). Thêm 2 domain đúng format site với tên partner và cờ regex giữ nguyên. Thêm 4 email **bằng tay** (không UPLOAD RETIREE trên site chung). End-date/xoá 3 người nghỉ và kiểm account link của họ. Mô tả trình tự production (staging, self-QA, second eyes, PC, ON HOLD HQ, header, verify) trong ticket. **Pass:** đúng 2 domain mới trên `sg_test1`, không `@`, partner điền, cờ regex không đổi, không domain nào ở site khác; đúng 4 retiree mới (dòng trùng chỉ thêm một lần); 3 người nghỉ không còn hợp lệ; số retiree = trước + 4 − 3; không người nghỉ nào còn link hợp lệ; không địa chỉ email nào trích trong comment.
+**PR-TEC-P2.2-2. Cập nhật access code và retiree list MY (TRN-013)** (30'; el3-s2, site `epp_housebuyer` (SSO_ACCESSCODE, site thật: chỉ code `TRN13ZZ-`) và `my_dennis_test` (test SSO_DOMAIN; dự phòng `phtest1`); SCOE-19 với `TRN-013_AccessCode_Update.xlsx` và `TRN-013_Staff_List_for_EPP_W45.xlsx`; trainer đã seed `TRN13ZZ-OLD00101…103` (OLD00103 đã consume) và 10 retiree). Đếm code theo prefix trước. Load 12 code "Add" (format text, hiệu lực D0 tới 31/12/2026 GMT+8, `companyEmail` trống) và kiểm cronjob. End-date `OLD00101`, `OLD00102`, `OLD00103` và hết hạn account link của `OLD00103`. Với retiree: chạy query swap-flag, tải list hiện tại, dựng file merge và upload (chỉ khi trainer xác nhận site thuộc cohort của bạn). Viết deletion line. **Pass:** 12 code `TRN13ZZ-` mới đúng ngày, không trùng; không code ngoài `TRN13ZZ-` bị đổi; `OLD00101` bị từ chối trên storefront với "Please enter a valid access code"; `OLD00103` end-dated và link hết hạn (đã kiểm Q6), không hỏi requester; tab retiree đúng 13 email, không có 2 termination và 2 email conversion cũ; số lượng ghi trên ticket; không code/email nào dán trong comment. Không có access: làm giấy, dựng list retiree merge (kỳ vọng 13) và tách Add/Remove (12 và 3) trong Excel, viết bước hết hạn link cho code đã consume và số sau kỳ vọng.

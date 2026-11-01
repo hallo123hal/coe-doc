@@ -1,0 +1,74 @@
+# TEC-P3.1 Platform issue to root cause
+
+> Nguồn: page 2484175262 · 90' (Study 20' · Demo 15' · Quiz 10' · Practice 45') · Facilitator: Shift Leader/Sub-Lead · Capabilities C2, C4, C6 · Cần xong TEC-1.2 (COEC process, SYSTEM SUPPORT, Maintenance Request) và TEC-2.2 (HAC, FlexibleSearch read-only). Mang pack TEC-TSP-01 và attachment TRN-041 (brief, `diagnosis-queries.sql`, `evidence-case-B.csv`, `maintenance-request-draft.md`). Access: staging Backoffice + HAC el3-s2 (chỉ đọc; không resubmit Knox, republish hay chạy cronjob), Jira SCOE-47. **Kibana:** cần tài khoản cá nhân cho URL STG và production ở trang Kibana Monitoring; login qua SAP ID Service + 2FA, chọn tenant Global, Discover, index `logs-json-*`; VDI/LAN văn phòng có thể treo: tạo Proxy Request với SSL Bypass; test login STG trước buổi học. Log giữ ~3 tuần (thấy 25–26 ngày ngày 28/10); cũ hơn cần ticket L2 label `COEC_logs_extract`, nên copy dòng log ngay hôm bạn xử lý (handover Day 4 Kibana Log, 28/10). Không access: facilitator đưa kết quả Q0–Q10 in sẵn.
+
+## Mục tiêu
+Đi một ticket TEC-TSP-01 qua runbook (route check, priority theo impact, khớp known error, reproduce); thu bằng chứng chỉ bằng query/màn hình read-only và ghi lý do mỗi query production lên ticket; quyết định lớp root cause (set-up, data, configuration, code, platform) và owner kèm lý do một câu; dựng evidence pack và quyết định Maintenance Request + SYSTEM SUPPORT có hợp lý không; viết investigation note cho requester và biết khi nào cần RCA, CAPA, problem record.
+
+## Thuật ngữ
+**Route check** (câu hỏi đầu mọi ticket TEC-TSP-01: service cụ thể hơn có sở hữu không? VD "Resync SC+ order" → TEC-VAS-02); **Variant V1–V6** (sáu loại platform issue; V1 promotion engine và voucher phổ biến nhất, ~25%); **RuleStatus** (chuỗi Knox: UNPUBLISHED, KNOXPENDINGAPPROVAL, KNOXAPPROVED, PUBLISHED); **defaultPromotionGroup** (nhóm promotion mà site đọc; rule chỉ chạy trên `test_smb_th` nếu Website là `test_smb_thPromotionGroup`); **Known error ID** (triệu chứng đánh số kèm nguyên nhân và workaround, VD KE-TEC-TSP-01-01 "promotion đã duyệt vẫn KNOXAPPROVED hoặc thành INACTIVE"); **Analysis comment** (comment ở IN REVIEW: đã kiểm gì, thấy gì, đề xuất cách làm); **Evidence pack** (bộ dữ kiện để Samsung L2/L3 bắt đầu ngay không hỏi lại); **Evidence-backed hypothesis** (nguyên nhân khả dĩ có query/log hỗ trợ; đủ để chuyển L3 khi chưa chứng minh); **5 Whys** (hỏi "why" lặp, mỗi câu trả lời có bằng chứng, tới nguyên nhân mà sửa thì sự kiện không lặp lại); **CAPA** (hành động khắc phục và phòng ngừa: mô tả kiểm chứng được, một owner theo vai trò, deadline, cách verify, status).
+
+## Nội dung
+### 1. Runbook TEC-TSP-01
+Phủ Hybris, AEM hay tích hợp mà service cụ thể không phủ: hành vi promotion/voucher, lỗi giá và Knox, lỗi delivery/RDD, API chậm, chức năng Backoffice hỏng. 370 ticket 2026, ~41/tháng. Doer: engineer Level 2. Checker: Tech Sub-Lead, review mọi production fix. Approver: Tech Lead và RHQ PC approver (hiện Oliver Leung) trên PC cho mọi thay đổi production.
+Priority theo impact: P0 4h, P1 8h, P2 16h, P3 40h, P4 120h; nội bộ 65% của P2 là 10h24. P0 (bảo mật dữ liệu, site/checkout không vào được, thiệt hại >500 USD) mở COE-INC-01 trong 15 phút.
+| Bước | Doer | Checker |
+|---|---|---|
+| Route check | So với "Not this service" (SC+ resync TEC-VAS-02, 3PD TEC-TSP-02, text UI TEC-TSP-05, job fail TEC-TSP-06, set-up Merch có thiệt hại MER-INC-01); comment kết quả | Đúng service và component (mục checklist 1) |
+| Priority và known error | Đặt priority theo impact; tìm mục 3 và TEC-KNB-01; link khớp | Priority khớp impact; đã kiểm known error (mục 2, 6) |
+| Reproduce | Site báo lỗi với test account, hoặc STG2; bước, giờ market, kết quả | Có tài liệu reproduce (mục 3) |
+| Evidence | Object ở Staged và Online, kết quả storefront, log; mask dữ liệu khách | Dữ liệu khách đã mask; root cause có chứng cứ (mục 4, 5) |
+| Fix plan hoặc escalation | Object, môi trường, giá trị trước/sau, rollback, executor; hoặc evidence pack cho L3 | Fix plan đủ; approval khớp change class; pack escalate đủ (mục 7, 8, 11) |
+Sáu variant có check riêng. Với V1: Marketing › Promotion Rules (status, ngày, website), setting Knox trong tokoconfig, job publish ở System › Background Processes › CronJobs, Marketing › Coupon Management › Coupons.
+
+### 2. Bằng chứng trước: read-only và tái hiện được
+Không đổi gì khi điều tra. Ở IN REVIEW bạn reproduce/verify trong Backoffice và công cụ đọc dữ liệu chế độ read-only. Query read-only không cần PC nhưng phải ghi lý do lên ticket; Tech không query production không lý do. Không bao giờ thử fix trên production "xem có hết không".
+Thiếu dữ liệu thì hỏi một lần bằng template B (code rule/coupon/SKU; site và môi trường; giờ thấy đầu tiên; screenshot; ước tính số order ảnh hưởng), rồi ON HOLD SUBSIDIARY với Assignee = requester, chỉ sau một yêu cầu đầy đủ, không bao giờ chỉ để dừng clock.
+**TRN-041, rule PR01.** TSE báo trên `test_smb_th` rule `TRAINING_<TEN>_TRN041_PR01` (giảm 10% `SM-S938BZKBTHL`) đã PUBLISHED nhưng cart test hiện giá đầy đủ (42,900 THB). Reproduce bằng test account, ghi giờ GMT+7. Rồi chạy SELECT:
+| Query | Cho biết | Kết quả el3-s2 |
+|---|---|---|
+| Q0 | SKU purchasable trong `thb2bProductCatalog:Online` | Có |
+| Q1 | defaultPromotionGroup của site | `test_smb_thPromotionGroup` |
+| Q2 | Status, ngày, website của rule | PUBLISHED, ngày hợp lệ, website `thPromotionGroup` |
+| Q4, Q5 | Rule trong engine; số PromotionResult | Có trong engine; 0 kết quả (chưa từng fire cho site này) |
+| Q10 | Kiểm mismatch (0 dòng = cùng group) | Trả 1 dòng |
+Kết luận: rule nằm sai promotion group. Engine, Knox và job không phải nguyên nhân. Query rộng trên `PromotionSourceRule` phải lọc `{website}` nếu không sẽ timeout.
+> TEC-TSP-01 nói cấu hình staging có thể khác production (tokoconfig, promotion module). Trên staging TH, Knox tắt (`knox.discount.promotion.approval.disabled.th = true`) và sáu rule BVT cũ nằm ở KNOXPENDINGAPPROVAL. Đừng coi hành vi staging là hành vi production. Module: `<cc>-promotions-module` là live; `<cc>-preview-promotions-module` chỉ simulator và không cần Knox (handover All Promotions 29/10).
+> KB so với handover cho V2 (Knox và giá): TEC-TSP-01 theo handover: tách file giá 10,000 dòng mỗi lần Knox submission, một line item mỗi site (KB nói 300; handover Price Row 29/10). Không chạy `knoxPriceApplyingJob` sau duyệt; chờ lịch, vì không chạy/chạy lại cronjob nào khi chưa RHQ duyệt (handover Cronjob 30/10). Không bao giờ tạo/sửa price row bằng tay: sửa tay ở Staged tạo PriceInfoChange mới cần Knox mới.
+
+### 3. Root cause và owner
+Kết luận phải nêu lớp và owner:
+| Lớp root cause | Ví dụ | Owner và status kế |
+|---|---|---|
+| Merchandising set-up | Rule sai group, khoảng trắng ẩn trong SKU code, category bị loại, sai user group (KE-TEC-TSP-01-06) | Trả Merch owner trên ticket của họ; MER-INC-01 nếu đang thiệt hại |
+| Data/configuration CoE được đổi | Thiếu giá trị division approval (KE-03), dữ liệu lead time (KE-09) | CoE fix: staging, QA REVIEW, PC, rồi production |
+| Code, engine, deployment, hạ tầng, phía NERP | Hai version KNOXAPPROVED chặn publish; xung đột discount sequence (KE-08) | Samsung L2/L3 qua Maintenance Request; COEC sang SYSTEM SUPPORT |
+| Hành vi sản phẩm nền tảng | Giới hạn sản phẩm SAP | SAP support qua RHQ |
+**TRN-041, rule PR02.** `evidence-case-B.csv` (dữ liệu production mô phỏng): KNOXAPPROVED 49 giờ sau khi Knox duyệt D-2 09:30; ngày và website đúng; 0 dòng trong engine; `knoxPromotionStatusJob` và `knoxPromotionPublishingJob` FINISHED/SUCCESS; log publish nói version 3 bị bỏ qua vì batch bulk có hai version KNOXAPPROVED của cùng rule. Khớp KE-TEC-TSP-01-01. Không phải lỗi Merch. Luật: không resubmit duyệt, nó tạo version mới.
+Chuyển Samsung L2/L3 chỉ khi đủ ba: mọi bước runbook trong quyền CoE đã làm; nguyên nhân (hoặc giả thuyết có chứng cứ) nằm ở phần CoE không được sửa; Tech Level 2 đồng ý (Sub-Lead cho P0–P2). Chỉ Tech Level 2 liên hệ Samsung L2/L3; Merch không bao giờ tạo Maintenance Request.
+> KE-TEC-TSP-01-01 nói "republish theo quy trình duyệt, không cần duyệt mới". Trên production mọi republish là thay đổi: PC trước, COEC ON HOLD HQ, không chạy gì trước duyệt. Clock dừng ở SYSTEM SUPPORT khi L3 làm (COEC SLA slide, Working Session P1 23/10). Nhịp follow-up vẫn chạy.
+
+### 4. Escalation pack và SYSTEM SUPPORT
+(TC-03 §6.4) 1) Sub-Lead đồng ý bằng comment ngắn trên COEC; P0, P1: báo Tech Lead và Incident Manager. 2) Tạo Maintenance Request ở project nước theo template RHQ, dán evidence pack, cùng priority với COEC. 3) Link tới COEC. 4) Chuyển COEC sang SYSTEM SUPPORT; giữ Assignee là người CoE Level 2; comment key Maintenance Request, đang chờ gì, ngày follow-up kế. 5) Cập nhật requester; nếu có ticket Merch liên kết, báo Merch PIC: ticket họ ở ON HOLD COE và clock vẫn chạy.
+Nhịp follow-up (RFP): P0–P2 mỗi 2 ngày làm việc; P3 mỗi 4; P4 hàng tuần. Mỗi follow-up là một comment bốn ý: đã hỏi ai bằng cách nào, trả lời mới nhất, bước kế, ngày follow-up kế. Khi SDS India hỏi lại, chuyển ticket IN PROGRESS trong lúc chuẩn bị trả lời, rồi về SYSTEM SUPPORT.
+Lỗi thường gặp: tạo Maintenance Request nhưng để COEC ở IN PROGRESS (clock chạy); giao Assignee cho người SDS India (mất ownership); pack thiếu các bước đã kiểm.
+> TEC-TSP-01 §2.10 và TRN-041 liệt kê pack bảy phần (steps, expected/actual, object code, screenshot, sample cart, log, workaround). TC-03 §6.3 định nghĩa tám phần (summary, context, already checked, impact, steps/expected/actual, evidence, hypothesis, request với needed-by time và câu ownership). Dùng tám phần TC-03 và bảo đảm bảy mục runbook nằm trong đó.
+
+### 5. Viết lại: investigation note và RCA
+**Investigation note.** Trước khi giao Checker, self-check runbook hỏi: route và priority có lý do trong comment; known error đã link/đề xuất; root cause hoặc giả thuyết có chứng cứ; fix plan có object, môi trường, giá trị trước/sau, rollback, executor; dữ liệu khách đã mask; requester biết workaround và giờ update kế. Update TRN-041 cho requester xử lý từng rule riêng: "PR01: root cause là set-up … vui lòng sửa website của rule trong ticket Merch (đổi website cần Knox lại). PR02: … đã tạo Maintenance Request; ticket của chúng tôi ở SYSTEM SUPPORT, follow-up kế sau 2 ngày làm việc."
+**Khi nào cần RCA (CM-06 bước I8):**
+| Severity | RCA | Hạn tính từ lúc khôi phục |
+|---|---|---|
+| Critical | RCA đầy đủ | Bản nháp nội bộ 36h; RHQ trong 48h; tối đa 72h (RFP) |
+| High | Một trang kèm CAPA | Tối đa 72h |
+| Medium, Low | Gom nguyên nhân trong incident log; RCA khi RHQ yêu cầu | Khi ghi log |
+| Lỗi lặp lại | Một RCA trong problem record | Theo CM-07 |
+Dùng 5 Whys: mỗi câu trả lời có bằng chứng; dừng ở nguyên nhân mà sửa thì hết lặp. Mỗi RCA nêu vì sao các kiểm soát (staging, self-QA, another set of eyes) không chặn được và không đổ lỗi cho ai. Một CAPA cần mô tả kiểm chứng được, một owner theo vai trò, deadline (checklist và luật: 3 ngày làm việc), cách verify, status. Mở problem record (COE-PRB-01) khi cùng lỗi xuất hiện 3 lần trong tháng, hoặc ticket chờ Samsung L2/L3 hơn 10 ngày làm việc.
+Handover liên quan: Knox Approval (27/10: flow Knox giá, tokoconfig, cronjob, PriceInfoChange trùng, ticket chờ); Promotion Rule and Pre-order (27/10: flow Knox rule, action cần duyệt, lỗi mixed publish, edge case sửa); Price Row (29/10: sai catalog, submission 10,000 dòng, GMT vs giờ local, tự tách period); Promotion Simulator (29/10: tái hiện case trong simulator, Staged vs Online); Kibana Log (28/10: filter, trace threadId, tag NERP, retention); All Scripting (28/10: special-price clash và script Special Price Validity Check); Third Party Integrations Trade-in and Payment Vendors (30/10: payment mode theo subsidiary; thứ tự chọn warehouse, PostCode2XDock); Working Session P1 (23/10: status dừng clock gồm SYSTEM SUPPORT).
+
+## Quiz (đáp án)
+1 Ticket COEC "Resync SC+ order" priority Medium ở NEW → **B: re-route sang TEC-VAS-02 kèm comment; không bắt đầu điều tra** (V5 là cho màn Backoffice và upload, không phải SC+ resync). 2 Rule PR01 PUBLISHED ngày hợp lệ nhưng cart test trên `test_smb_th` không giảm; Q1 trả `test_smb_thPromotionGroup`, Q2 website `thPromotionGroup` → **C: Merch set-up (sai promotion group); Merch owner sửa website trên ticket của họ** (escalate lỗi set-up cho Samsung là bẫy). 3 PR02 KNOXAPPROVED 49 giờ, job SUCCESS, log có hai version KNOXAPPROVED, TSE xin resubmit Knox → **B: không: resubmit tạo version mới; khớp KE-TEC-TSP-01-01, dựng evidence pack và escalate**. 4 SELECT production HAC để kiểm version engine của rule → **C: không cần PC nhưng phải ghi lý do lên ticket**. 5 Đã tạo Maintenance Request cho PR02, ticket COEC cần → **B: SYSTEM SUPPORT, Assignee vẫn là CoE Level 2, comment key và ngày follow-up kế**. 6 TRN-041 là P2, follow-up khi ở SYSTEM SUPPORT theo RFP → **C: mỗi 2 ngày làm việc** (nhịp follow-up vẫn chạy khi clock dừng). 7 SDS India hỏi cửa sổ publish log chính xác khi ticket ở SYSTEM SUPPORT → **B: chuyển COEC IN PROGRESS lúc chuẩn bị trả lời, trả lời, rồi về SYSTEM SUPPORT kèm comment**. 8 Incident High khôi phục 10:00 thứ Hai; hạn RCA và dạng → **B: tối đa 72h, RCA một trang kèm CAPA** (48h/RCA đầy đủ là luật Critical).
+
+## Practice
+**PR-TEC-P3.1-1. Promotion published but not applied (TRN-041)** (50'; staging el3-s2 read-only + Jira SCOE-47; chỉ đụng object `TRAINING_<TEN>_TRN041_…`; không resubmit Knox, republish, cronjob). Làm TRN-041 như engineer Level 2: (1) comment đầu: đã nhận, priority P2 kèm lý do, giờ update kế, "do not resubmit PR02"; (2) viết route check; (3) chạy Q0–Q5 và Q10 cho PR01 và kết luận; (4) đọc `evidence-case-B.csv` cho PR02 và kết luận; (5) soạn evidence pack và Maintenance Request chỉ cho PR02; (6) viết update cho requester, một đoạn mỗi rule, và liệt kê status path sẽ đi. **Pass:** PR01: root cause "rule website `thPromotionGroup`, site dùng `test_smb_thPromotionGroup`", owner Merch trên THAME-TRN041, không escalate Samsung. PR02: khớp KE-TEC-TSP-01-01, không resubmit, evidence pack đủ (kèm cửa sổ job log D-2 09:30 tới D0 14:00), Maintenance Request do Tech Level 2 soạn, COEC sang SYSTEM SUPPORT, ticket Merch giữ ON HOLD COE, follow-up sau 2 ngày làm việc. Không thay đổi production, không dữ liệu khách. Chấm theo lưới TRN-041: triage 3, investigation 4, control 2, evidence 1 (10 điểm). Không access: làm giấy với kết quả query in sẵn và CSV, cùng tiêu chí pass.
+**PR-TEC-P3.1-2. Five Whys cho PR01** (15'; giấy, sau bài 1). Giả sử PR01 đã lên production và launch mất một ngày discount. Viết 5 Whys từ "promotion không áp dụng" xuống nguyên nhân hệ thống, và hai CAPA (một khắc phục, một phòng ngừa). **Pass:** mỗi "why" dẫn chứng (kết quả query, checklist, ticket); chuỗi không dừng ở "người làm sai"; nêu kiểm soát lẽ ra chặn được (VD test cart QA trong KE-06 "Prevention"); mỗi CAPA có mô tả kiểm chứng được, một owner theo vai trò, deadline, cách verify, status (CM-07 §10.2 và §10.4).
